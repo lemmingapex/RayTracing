@@ -13,9 +13,6 @@ make
 Run It
 ------
 
-./RayTrace input.txt
-
-Example:
 ./RayTrace ./input/simple/input12.txt
 
 
