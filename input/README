@@ -1,0 +1,1 @@
+There are two files for each input.  The first input has a viewpoint on one of the axes and the screen perpendicular to that axis.  The second input uses a less trivial view but leads to a very similar (due to numerical precision) image.
