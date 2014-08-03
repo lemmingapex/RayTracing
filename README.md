@@ -16,7 +16,7 @@ Run It
 ./RayTrace input.txt
 
 Example:
-./RayTrace ./inputdata/input2.txt
+./RayTrace ./input/simple/input12.txt
 
 
 About
