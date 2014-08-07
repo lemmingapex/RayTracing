@@ -8,137 +8,15 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
-#include <assert.h>
 #include <string>
 #include <vector>
 
 #include "image.h"
+#include "point.cpp"
 
 using namespace std;
 
-class point
-{
-	private:
-		double x,y,z;
-	public:	
-		double X() { return x; }
-		double Y() { return y; }
-		double Z() { return z; }
-	
-		point()
-		{ }
-
-		point(double A[3])
-		{
-			x=A[0];
-			y=A[1];
-			z=A[2];
-		}
-
-		point(const double& A, const double& B, const double& C)
-		{
-			x=A;
-			y=B;
-			z=C;
-		}
-
-		point operator+ (const point& a) const
-		{
-			point result;
-			result.x = x+a.x;
-			result.y = y+a.y;
-			result.z = z+a.z;
-			return result;
-		}
-
-		point operator+ (const double& a) const
-		{
-			point result;
-			result.x = x+a;
-			result.y = y+a;
-			result.z = z+a;
-			return result;
-		}
-
-		point operator- (const point& a) const
-		{
-			point result;
-			result.x = x-a.x;
-			result.y = y-a.y;
-			result.z = z-a.z;
-			return result;
-		}
-
-		point operator- (const double& a) const
-		{
-			point result;
-			result.x = x-a;
-			result.y = y-a;
-			result.z = z-a;
-			return result;
-		}
-
-		point operator* (const point& a) const
-		{
-			point result;
-			result.x = x*a.x;
-			result.y = y*a.y;
-			result.z = z*a.z;
-			return result;
-		}
-
-		point operator* (const double& a) const
-		{
-			point result;
-			result.x = x*a;
-			result.y = y*a;
-			result.z = z*a;
-			return result;
-		}
-
-		point operator/ (const point& a) const
-		{
-			point result;
-			result.x = x/a.x;
-			result.y = y/a.y;
-			result.z = z/a.z;
-			return result;
-		}
-
-		point operator/ (const double& a) const
-		{
-			point result;
-			result.x = x/a;
-			result.y = y/a;
-			result.z = z/a;
-			return result;
-		}
-
-		point normalize()
-		{
-			point result = point(x,y,z);
-			result = result/(result.magnitude());
-			return result;
-		}
-
-		double magnitude()
-		{
-			return sqrt((x*x)+(y*y)+(z*z));
-		}
-
-		double dot(const point& P)
-		{
-			return x*P.x+y*P.y+z*P.z;
-		}
-
-		point cross(const point& P)
-		{
-			return point((y*P.z-z*P.y),(z*P.x-x*P.z),(x*P.y-y*P.x));
-		}
-};
-
-class material
-{
+class material {
 	public:
 		double k_diff_R, k_diff_G, k_diff_B;
 		double k_ambient_R, k_ambient_G, k_ambient_B;
@@ -148,8 +26,7 @@ class material
 		material()
 		{ }
 
-		material(double K_Diff[3], double K_Ambient[3], double K_Spec, double N_Spec)
-		{
+		material(double K_Diff[3], double K_Ambient[3], double K_Spec, double N_Spec) {
 			k_diff_R=K_Diff[0];
 			k_diff_G=K_Diff[1];
 			k_diff_B=K_Diff[2];
@@ -161,8 +38,7 @@ class material
 		}
 };
 
-class triangle
-{
+class triangle {
 	public:
 		point a1, a2, a3;
 		material m;
@@ -170,8 +46,7 @@ class triangle
 		triangle()
 		{ }
 
-		triangle(double A1[3], double A2[3], double A3[3], material M)
-		{
+		triangle(double A1[3], double A2[3], double A3[3], material M) {
 			a1=point(A1);
 			a2=point(A2);
 			a3=point(A3);
@@ -179,8 +54,7 @@ class triangle
 		}
 };
 
-class sphere
-{
+class sphere {
 	public:
 		point center;
 		double radius;
@@ -189,16 +63,14 @@ class sphere
 		sphere()
 		{ }
 
-		sphere(double Center[3], double Radius, material M)
-		{
+		sphere(double Center[3], double Radius, material M) {
 			center=point(Center);
 			radius=Radius;
 			m=M;
 		}
 };
 
-struct intersectionInfo
-{
+struct intersectionInfo {
 	char type;
 	unsigned int index;
 	double t;
@@ -211,74 +83,94 @@ vector <sphere> Spheres;
 point view_point, eye_ray, light_source, lower_left_corner, horizontal_point, vertical_point;
 double light_intensity, ambient_light_intensity;
 
-point eyeRay(const int& X, const int& Y)
-{
+point eyeRay(const int& X, const int& Y) {
 	return (lower_left_corner+horizontal_point*(((double)X+0.5)/resolution_x)+vertical_point*(((double)Y+0.5)/resolution_y))-view_point;
 }
 
-double sphereIntersection(point initialPoint, point Point, sphere Sphere)
-{
+double sphereIntersection(point initialPoint, point Point, sphere Sphere) {
 	point co = initialPoint-Sphere.center;
 	double t =-1.0;
+
+	// ray sphere intersection
+	// sphere:
+	// mag(x - c)^2 = r^2
+
+	// line:
+	// x = t*l + l0
+
+	// substitute and expand
+
 	// t=-B+/-sqrt(B^2-4AC)/2A
 	double A = (Point.magnitude())*(Point.magnitude());
 	double B = 2*(Point.dot(co));
 	double C = ((co.magnitude()*co.magnitude())-(Sphere.radius*Sphere.radius));
 	double D = B*B-4*A*C;
 
-	if(D>0)
-	{
+	// ignore complex solutions
+	if(D>0) {
+
+		// get both roots
 		double t1=(-B-sqrt(D))/(2*A);
 		double t2=(-B+sqrt(D))/(2*A);
 
-		if(t2<t1 && t2>0)
-		{
+		// find closest, positive, interestion
+		if(t2<t1 && t2>0) {
 			t1=t2;
 		}
 		// positive?
-		if(t1>=0)
-		{
+		if(t1>=0) {
 			t=t1;
 		}
 	}
 	return t;
 }
 
-double triangleIntersection(point initialPoint, point Point, triangle Triangle)
-{
+double triangleIntersection(point initialPoint, point Point, triangle Triangle) {
 	double t =-1;
-	// normal;
+	// normal
 	point n = (Triangle.a2-Triangle.a1).cross(Triangle.a3-Triangle.a1);
+	
+	// ray plane intersection
+	// plane:
+	// (p - p0) dot n = 0
+
+	// line:
+	// p = t*l + l0
+
+	// substitute:
+	// (t*l + l0 - p0) dot n = 0
+
 	t=-1*(((initialPoint-Triangle.a1).dot(n))/(Point.dot(n)));
 	if(t<0)
 	{
 		return -1;
 	}
 	
-	point p=initialPoint + (Point*t);
+	// find point on plane
+	point p = initialPoint + (Point*t);
 
+	// check if point is inside triangle
 	point v1 = (Triangle.a1-p).cross(Triangle.a2-p);
 	point v2 = (Triangle.a2-p).cross(Triangle.a3-p);
 	point v3 = (Triangle.a3-p).cross(Triangle.a1-p);
 
-	if((v1.dot(v2)<0)||(v2.dot(v3)<0)||(v3.dot(v1)<0))
-	{
+	// if the dot product of all of the vectors is the same (should be 1 or -1 depending on triangle orientation)
+	// then all the vectors point in the same direction, and the point is inside the triangle.
+	// don't check equivalence becasue of numerical precision issues, use < or >
+	if((v1.dot(v2)<0)||(v2.dot(v3)<0)||(v3.dot(v1)<0)) {
 		return -1;
 	}
 	return t;
 }
 
-intersectionInfo nearestIntersection(point E)
-{
+intersectionInfo nearestIntersection(point E) {
 	intersectionInfo I;
 	I.t=99999;
 
 	// spheres
-	for(unsigned int i=0; i<Spheres.size(); i++)
-	{
+	for(unsigned int i=0; i<Spheres.size(); i++) {
 		double intersection = sphereIntersection(view_point, E, Spheres[i]);
-		if(intersection<I.t && intersection !=-1)
-		{
+		if(intersection<I.t && intersection !=-1) {
 			I.t=intersection;
 			I.index=i;
 			I.type='S';
@@ -286,46 +178,38 @@ intersectionInfo nearestIntersection(point E)
 	}
 
 	// triangles
-	for(unsigned int i=0; i<Triangles.size(); i++)
-	{
+	for(unsigned int i=0; i<Triangles.size(); i++) {
 		double intersection = triangleIntersection(view_point, E, Triangles[i]);
-		if(intersection<I.t && intersection !=-1)
-		{
+		if(intersection<I.t && intersection !=-1) {
 			I.t=intersection;
 			I.index=i;
 			I.type='T';
 		}
 	}
 
-	if(I.t==99999)
-	{
+	if(I.t==99999) {
 		I.t=-1;
 	}
 	return I;
 }
 
-point viewPointVector(const point& P)
-{
+point viewPointVector(const point& P) {
 	return (view_point-P).normalize();
 }
 
-point lightSourceVector(const point& P)
-{
+point lightSourceVector(const point& P) {
 	return (light_source-P).normalize();
 }
 
-point normalTriangle(const triangle& T)
-{
+point normalTriangle(const triangle& T) {
 	point normal = (T.a3-T.a1).cross(T.a2-T.a1);
-	if((normal).dot(view_point-T.a1)<0)
-	{
+	if((normal).dot(view_point-T.a1)<0) {
 		normal=normal*-1.0;
 	}
 	return normal;
 }
 
-point normalSphere(const sphere& S, point P)
-{
+point normalSphere(const sphere& S, point P) {
 	return P-S.center;
 }
 
@@ -354,29 +238,24 @@ bool inShadow(intersectionInfo II) {
 	return false;
 }
 
-RGB illumination(intersectionInfo II)
-{
+RGB illumination(intersectionInfo II) {
 	// p = o + dt
 	point p = view_point + eye_ray*II.t;
 
-	// output colors	
+	// output colors
 	RGB colors;
 	point normal;
 
-	if(II.type=='T')
-	{
+	if(II.type=='T') {
 		triangle T=Triangles[II.index];
 		normal=normalTriangle(T);
 
-		if( (((normal).dot(light_source-p))<0) || inShadow(II) )
-		{
+		if( (((normal).dot(light_source-p))<0) || inShadow(II) ) {
 			// p in shadow of its primitive, return the value of the Ambient term
 			colors.r=T.m.k_ambient_R*ambient_light_intensity;
 			colors.g=T.m.k_ambient_G*ambient_light_intensity;
 			colors.b=T.m.k_ambient_B*ambient_light_intensity;
-		}
-		else
-		{
+		} else {
 			point N = normal.normalize();
 			point L = lightSourceVector(p);
 			point V = viewPointVector(p);
@@ -403,21 +282,16 @@ RGB illumination(intersectionInfo II)
 			colors.g=Iout.Y();
 			colors.b=Iout.Z();
 		}
-	}
-	else
-	{
+	} else {
 		sphere S=Spheres[II.index];
 		normal=normalSphere(S, p);
 
-		if( (((normal).dot(light_source-p))<0) || inShadow(II) )
-		{
+		if( (((normal).dot(light_source-p))<0) || inShadow(II) ) {
 			// p in shadow of its primitive, return the value of the Ambient term
 			colors.r=S.m.k_ambient_R*ambient_light_intensity;
 			colors.g=S.m.k_ambient_G*ambient_light_intensity;
 			colors.b=S.m.k_ambient_B*ambient_light_intensity;
-		}
-		else
-		{
+		} else {
 			point N = normal.normalize();
 			point L = lightSourceVector(p);
 			point V = viewPointVector(p);
@@ -436,8 +310,7 @@ RGB illumination(intersectionInfo II)
 	return colors;
 }
 
-bool read_input_file(string Filename)
-{
+bool read_input_file(string Filename) {
 	ifstream ifs(Filename.c_str());
 	if(ifs) {
 		double temp_point[3];
@@ -475,8 +348,7 @@ bool read_input_file(string Filename)
 			double radius;
 			double a1[3], a2[3], a3[3];
 
-			switch(toupper(primitive_type))
-			{
+			switch(toupper(primitive_type)) {
 				case 'S':
 					ifs >> center[0] >> center[1] >> center[2];
 					ifs >> radius;
@@ -487,7 +359,8 @@ bool read_input_file(string Filename)
 					ifs >> a3[0] >> a3[1] >> a3[2];
 					break;
 				default:
-					assert(0);
+					cerr << "Unrecognized primitive: " << toupper(primitive_type) << endl;
+					continue;
 					break;
 			}
 
@@ -496,8 +369,7 @@ bool read_input_file(string Filename)
 			ifs >> k_specular >> n_specular;
 			temp_material=material(k_diffuse, k_ambient, k_specular, n_specular);
 
-			switch(toupper(primitive_type))
-			{
+			switch(toupper(primitive_type)) {
 				case 'S':
 					Spheres.push_back(sphere(center, radius, temp_material));
 					break;
@@ -505,6 +377,7 @@ bool read_input_file(string Filename)
 					Triangles.push_back(triangle(a1, a2, a3, temp_material));
 					break;
 				default:
+					continue;
 					break;
 			}
 		}
