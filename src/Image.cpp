@@ -3,7 +3,7 @@
 // image.cpp
 // Ray Tracing
 
-#include "image.h"
+#include "Image.h"
 
 #include <math.h>
 #include <fstream>
@@ -12,11 +12,11 @@
 
 using namespace std;
 
-image::image ( int m, int n ) : xsize(m), ysize(n) {
+Image::Image ( int m, int n ) : xsize(m), ysize(n) {
 	rgb = new RGB[m*n];
 }
 
-RGB &image::pixel ( int i, int j ) {
+RGB &Image::pixel ( int i, int j ) {
 	return rgb[i+xsize*j];
 }
 
@@ -29,7 +29,7 @@ static unsigned char clampnround ( double x ) {
 	return (unsigned char)floor(x+.5);
 }
 
-void image::save_to_ppm_file ( const char *filename ) {
+void Image::save_to_ppm_file ( const char *filename ) {
 	ofstream ofs(filename,ios::binary);
 	assert(ofs);
 	ofs << "P6" << endl;

@@ -1,6 +1,9 @@
+#ifndef POINT_H
+#define	POINT_H
+
 #include <math.h>
 
-class point
+class Point
 {
 	private:
 		double x,y,z;
@@ -9,98 +12,98 @@ class point
 		double Y() { return y; }
 		double Z() { return z; }
 	
-		point()
+		Point()
 		{ }
 
-		point(double A[3])
+		Point(double A[3])
 		{
 			x=A[0];
 			y=A[1];
 			z=A[2];
 		}
 
-		point(const double& A, const double& B, const double& C)
+		Point(const double& A, const double& B, const double& C)
 		{
 			x=A;
 			y=B;
 			z=C;
 		}
 
-		point operator+ (const point& a) const
+		Point operator+ (const Point& a) const
 		{
-			point result;
+			Point result;
 			result.x = x+a.x;
 			result.y = y+a.y;
 			result.z = z+a.z;
 			return result;
 		}
 
-		point operator+ (const double& a) const
+		Point operator+ (const double& a) const
 		{
-			point result;
+			Point result;
 			result.x = x+a;
 			result.y = y+a;
 			result.z = z+a;
 			return result;
 		}
 
-		point operator- (const point& a) const
+		Point operator- (const Point& a) const
 		{
-			point result;
+			Point result;
 			result.x = x-a.x;
 			result.y = y-a.y;
 			result.z = z-a.z;
 			return result;
 		}
 
-		point operator- (const double& a) const
+		Point operator- (const double& a) const
 		{
-			point result;
+			Point result;
 			result.x = x-a;
 			result.y = y-a;
 			result.z = z-a;
 			return result;
 		}
 
-		point operator* (const point& a) const
+		Point operator* (const Point& a) const
 		{
-			point result;
+			Point result;
 			result.x = x*a.x;
 			result.y = y*a.y;
 			result.z = z*a.z;
 			return result;
 		}
 
-		point operator* (const double& a) const
+		Point operator* (const double& a) const
 		{
-			point result;
+			Point result;
 			result.x = x*a;
 			result.y = y*a;
 			result.z = z*a;
 			return result;
 		}
 
-		point operator/ (const point& a) const
+		Point operator/ (const Point& a) const
 		{
-			point result;
+			Point result;
 			result.x = x/a.x;
 			result.y = y/a.y;
 			result.z = z/a.z;
 			return result;
 		}
 
-		point operator/ (const double& a) const
+		Point operator/ (const double& a) const
 		{
-			point result;
+			Point result;
 			result.x = x/a;
 			result.y = y/a;
 			result.z = z/a;
 			return result;
 		}
 
-		point normalize()
+		Point normalize()
 		{
-			point result = point(x,y,z);
+			Point result = Point(x,y,z);
 			result = result/(result.magnitude());
 			return result;
 		}
@@ -110,13 +113,15 @@ class point
 			return sqrt((x*x)+(y*y)+(z*z));
 		}
 
-		double dot(const point& P)
+		double dot(const Point& P)
 		{
 			return x*P.x+y*P.y+z*P.z;
 		}
 
-		point cross(const point& P)
+		Point cross(const Point& P)
 		{
-			return point((y*P.z-z*P.y),(z*P.x-x*P.z),(x*P.y-y*P.x));
+			return Point((y*P.z-z*P.y),(z*P.x-x*P.z),(x*P.y-y*P.x));
 		}
 };
+
+#endif	/* POINT_H */
