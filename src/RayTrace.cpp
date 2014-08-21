@@ -92,68 +92,41 @@ RGB illumination(intersectionInfo II) {
 
 	// output colors
 	RGB colors;
-	Point normal;
 
-	if(II.type=='T') {
-		Triangle* T = dynamic_cast<Triangle*>(Primitives[II.index]);
-		normal=T->Normal(view_point, p);
+	Primitive* P = Primitives[II.index];
+	Point normal=P->Normal(view_point, p);
 
-		if( (((normal).dot(light_source-p))<0) || inShadow(II) ) {
-			// p in shadow of its primitive, return the value of the Ambient term
-			colors.r=T->m.k_ambient_R*ambient_light_intensity;
-			colors.g=T->m.k_ambient_G*ambient_light_intensity;
-			colors.b=T->m.k_ambient_B*ambient_light_intensity;
-		} else {
-			Point N = normal.normalize();
-			Point L = lightSourceVector(p);
-			Point V = viewPointVector(p);
-			Point H = (L+V).normalize();
-
-			// some values not actually points, but using point class for methods!!!
-
-			// Ambient term
-			// Ia=I*ka
-			Point Ia = Point(T->m.k_ambient_R, T->m.k_ambient_G, T->m.k_ambient_B)*ambient_light_intensity;
-
-			// Diffuse term
-			// Id = I*kd*(N dot L);
-			Point Id = Point(T->m.k_diff_R, T->m.k_diff_G, T->m.k_diff_B)*(N).dot(L)*light_intensity;
-			
-			// Specular term
-			// Is = I*ks*(H dot N)^n;
-			double Is = pow(((H).dot(N)),(T->m.n_spec))*T->m.k_spec*light_intensity;
-
-			// Iout = ambient term + diffuse term + specular term 
-			// Iout = Ia + Id + Is
-			Point Iout = Ia + Id + Is;
-			colors.r=Iout.X();
-			colors.g=Iout.Y();
-			colors.b=Iout.Z();
-		}
+	if( (((normal).dot(light_source-p))<0) || inShadow(II) ) {
+		// p in shadow of its primitive, return the value of the Ambient term
+		colors.r=P->m.k_ambient_R*ambient_light_intensity;
+		colors.g=P->m.k_ambient_G*ambient_light_intensity;
+		colors.b=P->m.k_ambient_B*ambient_light_intensity;
 	} else {
-		Sphere* S = dynamic_cast<Sphere*>(Primitives[II.index]);
-		normal=S->Normal(view_point, p);
+		Point N = normal.normalize();
+		Point L = lightSourceVector(p);
+		Point V = viewPointVector(p);
+		Point H = (L+V).normalize();
 
-		if( (((normal).dot(light_source-p))<0) || inShadow(II) ) {
-			// p in shadow of its primitive, return the value of the Ambient term
-			colors.r=S->m.k_ambient_R*ambient_light_intensity;
-			colors.g=S->m.k_ambient_G*ambient_light_intensity;
-			colors.b=S->m.k_ambient_B*ambient_light_intensity;
-		} else {
-			Point N = normal.normalize();
-			Point L = lightSourceVector(p);
-			Point V = viewPointVector(p);
-			Point H = (L+V).normalize();
+		// some values not actually points, but using point class for methods!!!
 
-			Point Ia = Point(S->m.k_ambient_R, S->m.k_ambient_G, S->m.k_ambient_B)*ambient_light_intensity;
-			Point Id = Point(S->m.k_diff_R, S->m.k_diff_G, S->m.k_diff_B)*(N).dot(L)*light_intensity;
-			double Is = pow(((H).dot(N)),(S->m.n_spec))*S->m.k_spec*light_intensity;
+		// Ambient term
+		// Ia=I*ka
+		Point Ia = Point(P->m.k_ambient_R, P->m.k_ambient_G, P->m.k_ambient_B)*ambient_light_intensity;
 
-			Point Iout = Ia + Id + Is;
-			colors.r=Iout.X();
-			colors.g=Iout.Y();
-			colors.b=Iout.Z();
-		}
+		// Diffuse term
+		// Id = I*kd*(N dot L);
+		Point Id = Point(P->m.k_diff_R, P->m.k_diff_G, P->m.k_diff_B)*(N).dot(L)*light_intensity;
+		
+		// Specular term
+		// Is = I*ks*(H dot N)^n;
+		double Is = pow(((H).dot(N)),(P->m.n_spec))*P->m.k_spec*light_intensity;
+
+		// Iout = ambient term + diffuse term + specular term 
+		// Iout = Ia + Id + Is
+		Point Iout = Ia + Id + Is;
+		colors.r=Iout.X();
+		colors.g=Iout.Y();
+		colors.b=Iout.Z();
 	}
 	return colors;
 }
