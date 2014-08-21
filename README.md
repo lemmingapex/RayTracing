@@ -19,6 +19,6 @@ Run It
 About
 -----
 
-Lighting and shadows are being rendered at this point.  If you would like to run the program on an entire directory:
+A Phong reflection model is used for local illumination.  Shadows are present, although simple.  If you would like to run the program on an entire directory:
 
 ls ./input/simple/*.txt | xargs -I {} ./RayTrace {}
