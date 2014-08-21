@@ -21,7 +21,6 @@
 using namespace std;
 
 struct intersectionInfo {
-	char type;
 	unsigned int index;
 	double t;
 };
@@ -55,12 +54,6 @@ intersectionInfo nearestIntersection(Point E) {
 		if(intersection<I.t && intersection != -1) {
 			I.t=intersection;
 			I.index=i;
-			if(dynamic_cast<Sphere*>(Primitives[i])) {
-				I.type='S';	
-			} else {
-				I.type='T';	
-			}
-			
 		}
 	}
 
@@ -86,6 +79,9 @@ bool inShadow(intersectionInfo II) {
 	return false;
 }
 
+/**
+* Uses Phong shading
+*/
 RGB illumination(intersectionInfo II) {
 	// p = o + dt
 	Point p = view_point + eye_ray*II.t;
