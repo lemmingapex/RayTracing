@@ -5,10 +5,16 @@ RGB;
 
 class Image {
 	public:
-		Image ( int m, int n );       // allocates image of specified size
-		RGB &pixel ( int i, int j );  // access to a specific pixel
-		bool save_to_ppm_file ( const char *filename );
+		// allocates image of specified size
+		Image(int m, int n);
+
+		// access to a specific pixel
+		RGB &pixel(int i, int j);
+
+		bool save_to_ppm_file(const char *filename);
 	private:
-		int xsize,ysize; // resolution
-		RGB *rgb;        // pixel intensities
+		int xsize, ysize;
+
+		// pixel intensities
+		RGB *rgb;
 };

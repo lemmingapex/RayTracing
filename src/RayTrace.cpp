@@ -1,6 +1,6 @@
 // Scott Wiedemann
 // 08/28/2009
-// raytrace.cpp
+// RayTrace.cpp
 // Ray Tracing
 
 #include <math.h>
@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <limits>
 #include <vector>
 
 #include "Image.h"
@@ -20,16 +21,16 @@
 
 using namespace std;
 
-struct intersectionInfo {
+struct IntersectionInformation {
 	unsigned int index;
 	double t;
 };
 
 // global variables
-int resolution_x, resolution_y;
 vector <Primitive*> Primitives;
 
 // scene stuff
+int resolution_x, resolution_y;
 Point view_point, eye_ray, light_source, lower_left_corner, horizontal_point, vertical_point;
 double light_intensity, ambient_light_intensity;
 
@@ -45,65 +46,67 @@ Point lightSourceVector(const Point& P) {
 	return (light_source-P).normalize();
 }
 
-intersectionInfo nearestIntersection(Point E) {
-	intersectionInfo I;
-	I.t=99999;
+IntersectionInformation nearestIntersection(Point E) {
+	IntersectionInformation intersectionInformation;
+	intersectionInformation.t = numeric_limits<double>::max();
 
-	for(unsigned int i=0; i<Primitives.size(); i++) {
+	for(unsigned int i = 0; i < Primitives.size(); i++) {
 		double intersection = Primitives[i]->Intersection(view_point, E);
-		if(intersection<I.t && intersection != -1) {
-			I.t=intersection;
-			I.index=i;
+		if(intersection < intersectionInformation.t && intersection != -1) {
+			intersectionInformation.t = intersection;
+			intersectionInformation.index = i;
 		}
 	}
 
-	if(I.t==99999) {
-		I.t=-1;
+	if(intersectionInformation.t == numeric_limits<double>::max()) {
+		intersectionInformation.t = -1.0;
 	}
-	return I;
+	return intersectionInformation;
 }
 
-bool inShadow(intersectionInfo II) {
-	Point p = view_point + eye_ray*II.t;
+bool isInShadow(IntersectionInformation intersectionInformation) {
+	Point p = view_point + eye_ray*intersectionInformation.t;
 	Point shadow = lightSourceVector(p);
 
 	for(unsigned int i=0; i<Primitives.size(); i++) {
-		if(i!=II.index) {
+		if(i != intersectionInformation.index) {
 			double t = Primitives[i]->Intersection(p, shadow);
-			if(t>=0) {
+			if(t > 0) {
 				return true;
 			}
 		}
 	}
-
 	return false;
 }
 
 /**
 * Uses Phong shading
 */
-RGB illumination(intersectionInfo II) {
+RGB illumination(IntersectionInformation intersectionInformation) {
 	// p = o + dt
-	Point p = view_point + eye_ray*II.t;
+	Point p = view_point + eye_ray*intersectionInformation.t;
 
 	// output colors
 	RGB colors;
 
-	Primitive* P = Primitives[II.index];
-	Point normal=P->Normal(view_point, p);
+	Primitive* P = Primitives[intersectionInformation.index];
+	Point N = P->Normal(view_point, p).normalize();
+	Point L = lightSourceVector(p);
 
-	if( (((normal).dot(light_source-p))<0) || inShadow(II) ) {
-		// p in shadow of its primitive, return the value of the Ambient term
+	// check if the intersection is in shadow
+	// in shadow can occur in 2 cases
+	// 1) the primitive can block itself
+	// 2) a different primitive can block the intersection
+	if((N).dot(L) < 0 || isInShadow(intersectionInformation)) {
+		// return the value of the Ambient term
 		colors.r=P->m.k_ambient_R*ambient_light_intensity;
 		colors.g=P->m.k_ambient_G*ambient_light_intensity;
 		colors.b=P->m.k_ambient_B*ambient_light_intensity;
 	} else {
-		Point N = normal.normalize();
-		Point L = lightSourceVector(p);
 		Point V = viewPointVector(p);
 		Point H = (L+V).normalize();
 
-		// some values not actually points, but using point class for methods!!!
+		// some values not actually points, but using point class for methods!
 
 		// Ambient term
 		// Ia=I*ka
@@ -232,11 +235,11 @@ int main(int argc, const char *argv[]) {
 	for(int x=0; x<resolution_x; x++) {
 		for(int y=0; y<resolution_y; y++) {
 			eye_ray = eyeRay(x, y);
-			intersectionInfo ii = nearestIntersection(eye_ray);
+			IntersectionInformation intersectionInformation = nearestIntersection(eye_ray);
 			
-			if(ii.t>-1) {
+			if(intersectionInformation.t > 0) {
 				RGB &pix = img.pixel(x, resolution_y-y-1);
-				pix = illumination(ii);
+				pix = illumination(intersectionInformation);
 			}
 		}
 	}
