@@ -29,11 +29,21 @@ struct intersectionInfo {
 // global variables
 int resolution_x, resolution_y;
 vector <Primitive*> Primitives;
+
+// scene stuff
 Point view_point, eye_ray, light_source, lower_left_corner, horizontal_point, vertical_point;
 double light_intensity, ambient_light_intensity;
 
 Point eyeRay(const int& X, const int& Y) {
 	return (lower_left_corner+horizontal_point*(((double)X+0.5)/resolution_x)+vertical_point*(((double)Y+0.5)/resolution_y))-view_point;
+}
+
+Point viewPointVector(const Point& P) {
+	return (view_point-P).normalize();
+}
+
+Point lightSourceVector(const Point& P) {
+	return (light_source-P).normalize();
 }
 
 intersectionInfo nearestIntersection(Point E) {
@@ -58,14 +68,6 @@ intersectionInfo nearestIntersection(Point E) {
 		I.t=-1;
 	}
 	return I;
-}
-
-Point viewPointVector(const Point& P) {
-	return (view_point-P).normalize();
-}
-
-Point lightSourceVector(const Point& P) {
-	return (light_source-P).normalize();
 }
 
 bool inShadow(intersectionInfo II) {
@@ -156,6 +158,9 @@ RGB illumination(intersectionInfo II) {
 	return colors;
 }
 
+/**
+ * Populates Primitives and the View
+*/
 bool read_input_file(string Filename) {
 	ifstream ifs(Filename.c_str());
 	if(ifs) {
@@ -190,11 +195,12 @@ bool read_input_file(string Filename) {
 
 		for(int i=0; i<number_of_primitives; i++) {
 			ifs >> primitive_type;
+			primitive_type = toupper(primitive_type);
 			double center[3];
 			double radius;
 			double a1[3], a2[3], a3[3];
 
-			switch(toupper(primitive_type)) {
+			switch(primitive_type) {
 				case 'S':
 					ifs >> center[0] >> center[1] >> center[2];
 					ifs >> radius;
@@ -215,7 +221,7 @@ bool read_input_file(string Filename) {
 			ifs >> k_specular >> n_specular;
 			temp_material=Material(k_diffuse, k_ambient, k_specular, n_specular);
 
-			switch(toupper(primitive_type)) {
+			switch(primitive_type) {
 				case 'S':
 					Primitives.push_back(new Sphere(center, radius, temp_material));
 					break;
@@ -241,10 +247,15 @@ int main(int argc, const char *argv[]) {
 		return 1;
 	} else if (argc == 2) {
 		inputFileName = argv[1];
-		outputFileName = inputFileName.substr(0,inputFileName.length()-4)+".ppm";
+		size_t dot = inputFileName.find_last_of(".");
+		if (dot == string::npos) {
+			dot = inputFileName.length();
+		}
+
+		outputFileName = inputFileName.substr(0, dot)+".ppm";
 	}
 	if(!read_input_file(inputFileName)) {
-		cerr << "File " << inputFileName << " does not exist, or can't be read." << endl;
+		cerr << "File " << inputFileName << " does not exist, or can not be read." << endl;
 		return 2;
 	}
 
@@ -254,14 +265,16 @@ int main(int argc, const char *argv[]) {
 			eye_ray = eyeRay(x, y);
 			intersectionInfo ii = nearestIntersection(eye_ray);
 			
-			RGB &pix = img.pixel(x, resolution_y-y-1);
-			
 			if(ii.t>-1) {
+				RGB &pix = img.pixel(x, resolution_y-y-1);
 				pix = illumination(ii);
 			}
 		}
 	}
 
-	img.save_to_ppm_file(outputFileName.c_str());
+	if(!img.save_to_ppm_file(outputFileName.c_str())) {
+		cerr << "Problem writing " << outputFileName << "." << endl;
+		return 3;
+	}
 	return 0;
 }

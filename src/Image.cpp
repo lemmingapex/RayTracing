@@ -8,7 +8,6 @@
 #include <math.h>
 #include <fstream>
 #include <iostream>
-#include <assert.h>
 
 using namespace std;
 
@@ -29,17 +28,20 @@ static unsigned char clampnround ( double x ) {
 	return (unsigned char)floor(x+.5);
 }
 
-void Image::save_to_ppm_file ( const char *filename ) {
+bool Image::save_to_ppm_file ( const char *filename ) {
 	ofstream ofs(filename,ios::binary);
-	assert(ofs);
-	ofs << "P6" << endl;
-	ofs << xsize << " " << ysize << endl << 255 << endl;
-	for ( int i=0; i<xsize*ysize; i++ )	{
-		unsigned char r = clampnround(256*rgb[i].r);
-		unsigned char g = clampnround(256*rgb[i].g);
-		unsigned char b = clampnround(256*rgb[i].b);
-		ofs.write((char*)&r,sizeof(char));
-		ofs.write((char*)&g,sizeof(char));
-		ofs.write((char*)&b,sizeof(char));
+	if(ofs) {
+		ofs << "P6" << endl;
+		ofs << xsize << " " << ysize << endl << 255 << endl;
+		for ( int i=0; i<xsize*ysize; i++ )	{
+			unsigned char r = clampnround(256*rgb[i].r);
+			unsigned char g = clampnround(256*rgb[i].g);
+			unsigned char b = clampnround(256*rgb[i].b);
+			ofs.write((char*)&r,sizeof(char));
+			ofs.write((char*)&g,sizeof(char));
+			ofs.write((char*)&b,sizeof(char));
+		}
+		return true;
 	}
+	return false;
 }
