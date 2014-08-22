@@ -11,9 +11,9 @@ public:
 	{ }
 
 	Sphere(double Center[3], double Radius, Material M) {
-		center=Point(Center);
-		radius=Radius;
-		m=M;
+		center = Point(Center);
+		radius = Radius;
+		m = M;
 	}
 
 	virtual double Intersection(Point viewPoint, Point eyeRay) {

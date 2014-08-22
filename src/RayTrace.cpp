@@ -92,6 +92,7 @@ RGB illumination(IntersectionInformation intersectionInformation) {
 	Primitive* P = Primitives[intersectionInformation.index];
 	Point N = P->Normal(view_point, p).normalize();
 	Point L = lightSourceVector(p);
+	Point Iout;
 
 	// check if the intersection is in shadow
 	// in shadow can occur in 2 cases
@@ -99,9 +100,7 @@ RGB illumination(IntersectionInformation intersectionInformation) {
 	// 2) a different primitive can block the intersection
 	if((N).dot(L) < 0 || isInShadow(intersectionInformation)) {
 		// return the value of the Ambient term
-		colors.r=P->m.k_ambient_R*ambient_light_intensity;
-		colors.g=P->m.k_ambient_G*ambient_light_intensity;
-		colors.b=P->m.k_ambient_B*ambient_light_intensity;
+		Iout = P->m.kAmbient*ambient_light_intensity;
 	} else {
 		Point V = viewPointVector(p);
 		Point H = (L+V).normalize();
@@ -110,23 +109,23 @@ RGB illumination(IntersectionInformation intersectionInformation) {
 
 		// Ambient term
 		// Ia=I*ka
-		Point Ia = Point(P->m.k_ambient_R, P->m.k_ambient_G, P->m.k_ambient_B)*ambient_light_intensity;
+		Point Ia = P->m.kAmbient*ambient_light_intensity;
 
 		// Diffuse term
 		// Id = I*kd*(N dot L);
-		Point Id = Point(P->m.k_diff_R, P->m.k_diff_G, P->m.k_diff_B)*(N).dot(L)*light_intensity;
+		Point Id = P->m.kDiff*(N).dot(L)*light_intensity;
 		
 		// Specular term
 		// Is = I*ks*(H dot N)^n;
-		double Is = pow(((H).dot(N)),(P->m.n_spec))*P->m.k_spec*light_intensity;
+		double Is = pow(((H).dot(N)),(P->m.nSpec))*P->m.kSpec*light_intensity;
 
 		// Iout = ambient term + diffuse term + specular term 
 		// Iout = Ia + Id + Is
-		Point Iout = Ia + Id + Is;
-		colors.r=Iout.X();
-		colors.g=Iout.Y();
-		colors.b=Iout.Z();
+		Iout = Ia + Id + Is;
 	}
+	colors.r = Iout.X();
+	colors.g = Iout.Y();
+	colors.b = Iout.Z();
 	return colors;
 }
 
