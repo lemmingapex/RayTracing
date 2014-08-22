@@ -11,9 +11,9 @@
 #include <string>
 #include <limits>
 #include <vector>
+#include <vecmath.h>
 
 #include "Image.h"
-#include "Point.h"
 #include "Material.h"
 #include "Primitive.h"
 #include "Sphere.h"
@@ -31,22 +31,22 @@ vector <Primitive*> Primitives;
 
 // scene stuff
 int resolution_x, resolution_y;
-Point view_point, eye_ray, light_source, lower_left_corner, horizontal_point, vertical_point;
+Vector3f view_point, eye_ray, light_source, lower_left_corner, horizontal_point, vertical_point;
 double light_intensity, ambient_light_intensity;
 
-Point eyeRay(const int& X, const int& Y) {
+Vector3f eyeRay(const int& X, const int& Y) {
 	return (lower_left_corner+horizontal_point*(((double)X+0.5)/resolution_x)+vertical_point*(((double)Y+0.5)/resolution_y))-view_point;
 }
 
-Point viewPointVector(const Point& P) {
-	return (view_point-P).normalize();
+Vector3f viewPointVector(const Vector3f& P) {
+	return (view_point-P).normalized();
 }
 
-Point lightSourceVector(const Point& P) {
-	return (light_source-P).normalize();
+Vector3f lightSourceVector(const Vector3f& P) {
+	return (light_source-P).normalized();
 }
 
-IntersectionInformation nearestIntersection(Point E) {
+IntersectionInformation nearestIntersection(Vector3f E) {
 	IntersectionInformation intersectionInformation;
 	intersectionInformation.t = numeric_limits<double>::max();
 
@@ -65,8 +65,8 @@ IntersectionInformation nearestIntersection(Point E) {
 }
 
 bool isInShadow(IntersectionInformation intersectionInformation) {
-	Point p = view_point + eye_ray*intersectionInformation.t;
-	Point shadow = lightSourceVector(p);
+	Vector3f p = view_point + eye_ray*intersectionInformation.t;
+	Vector3f shadow = lightSourceVector(p);
 
 	for(unsigned int i=0; i<Primitives.size(); i++) {
 		if(i != intersectionInformation.index) {
@@ -84,15 +84,15 @@ bool isInShadow(IntersectionInformation intersectionInformation) {
 */
 RGB illumination(IntersectionInformation intersectionInformation) {
 	// p = o + dt
-	Point p = view_point + eye_ray*intersectionInformation.t;
+	Vector3f p = view_point + eye_ray*intersectionInformation.t;
 
 	// output colors
 	RGB colors;
 
 	Primitive* P = Primitives[intersectionInformation.index];
-	Point N = P->Normal(view_point, p).normalize();
-	Point L = lightSourceVector(p);
-	Point Iout;
+	Vector3f N = P->Normal(view_point, p).normalized();
+	Vector3f L = lightSourceVector(p);
+	Vector3f Iout;
 
 	// check if the intersection is in shadow
 	// in shadow can occur in 2 cases
@@ -102,18 +102,18 @@ RGB illumination(IntersectionInformation intersectionInformation) {
 		// return the value of the Ambient term
 		Iout = P->m.kAmbient*ambient_light_intensity;
 	} else {
-		Point V = viewPointVector(p);
-		Point H = (L+V).normalize();
+		Vector3f V = viewPointVector(p);
+		Vector3f H = (L+V).normalized();
 
 		// some values not actually points, but using point class for methods!
 
 		// Ambient term
 		// Ia=I*ka
-		Point Ia = P->m.kAmbient*ambient_light_intensity;
+		Vector3f Ia = P->m.kAmbient*ambient_light_intensity;
 
 		// Diffuse term
 		// Id = I*kd*(N dot L);
-		Point Id = P->m.kDiff*(N).dot(L)*light_intensity;
+		Vector3f Id = P->m.kDiff*(N).dot(L)*light_intensity;
 		
 		// Specular term
 		// Is = I*ks*(H dot N)^n;
@@ -123,9 +123,9 @@ RGB illumination(IntersectionInformation intersectionInformation) {
 		// Iout = Ia + Id + Is
 		Iout = Ia + Id + Is;
 	}
-	colors.r = Iout.X();
-	colors.g = Iout.Y();
-	colors.b = Iout.Z();
+	colors.r = Iout.x();
+	colors.g = Iout.y();
+	colors.b = Iout.z();
 	return colors;
 }
 
@@ -135,41 +135,41 @@ RGB illumination(IntersectionInformation intersectionInformation) {
 bool read_input_file(string Filename) {
 	ifstream ifs(Filename.c_str());
 	if(ifs) {
-		double temp_point[3];
+		float temp_point[3];
 		int number_of_primitives;
 
 		ifs >> resolution_x >> resolution_y;
 
 		ifs >> temp_point[0] >> temp_point[1] >> temp_point[2];
-		view_point=Point(temp_point);
+		view_point=Vector3f(temp_point);
 
 		ifs >> temp_point[0] >> temp_point[1] >> temp_point[2];
-		lower_left_corner=Point(temp_point);
+		lower_left_corner=Vector3f(temp_point);
 
 		ifs >> temp_point[0] >> temp_point[1] >> temp_point[2];
-		horizontal_point=Point(temp_point);
+		horizontal_point=Vector3f(temp_point);
 
 		ifs >> temp_point[0] >> temp_point[1] >> temp_point[2];
-		vertical_point=Point(temp_point);
+		vertical_point=Vector3f(temp_point);
 
 		ifs >> temp_point[0] >> temp_point[1] >> temp_point[2];
-		light_source=Point(temp_point);
+		light_source=Vector3f(temp_point);
 
 		ifs >> light_intensity;
 		ifs >> ambient_light_intensity;
 		ifs >> number_of_primitives;
 
 		Material temp_material;
-		double k_diffuse[3], k_ambient[3];
+		float k_diffuse[3], k_ambient[3];
 		double k_specular, n_specular;
 		char primitive_type;
 
 		for(int i=0; i<number_of_primitives; i++) {
 			ifs >> primitive_type;
 			primitive_type = toupper(primitive_type);
-			double center[3];
+			float center[3];
 			double radius;
-			double a1[3], a2[3], a3[3];
+			float a1[3], a2[3], a3[3];
 
 			switch(primitive_type) {
 				case 'S':

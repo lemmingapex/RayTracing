@@ -6,9 +6,9 @@ Material::Material() {
 	
 }
 
-Material::Material(double KDiff[3], double KAmbient[3], double KSpec, double NSpec) {
-	kDiff = Point(KDiff);
-	kAmbient = Point(KAmbient);
+Material::Material(float KDiff[3], float KAmbient[3], double KSpec, double NSpec) {
+	kDiff = Vector3f(KDiff);
+	kAmbient = Vector3f(KAmbient);
 	kSpec = KSpec;
 	nSpec = NSpec;
 }

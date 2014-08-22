@@ -1,24 +1,25 @@
+#include <vecmath.h>
+
 #include "Material.h"
-#include "Point.h"
 #include "Primitive.h"
 
 class Sphere: public Primitive {
 public:
-	Point center;
+	Vector3f center;
 	double radius;
 
 	Sphere()
 	{ }
 
-	Sphere(double Center[3], double Radius, Material M) {
-		center = Point(Center);
+	Sphere(float Center[3], double Radius, Material M) {
+		center = Vector3f(Center);
 		radius = Radius;
 		m = M;
 	}
 
-	virtual double Intersection(Point viewPoint, Point eyeRay) {
+	virtual double Intersection(Vector3f viewPoint, Vector3f eyeRay) {
 		double t = -1.0;
-		Point co = viewPoint-center;
+		Vector3f co = viewPoint-center;
 
 		// ray sphere intersection
 		// sphere:
@@ -30,9 +31,9 @@ public:
 		// substitute and expand
 
 		// t=-B+/-sqrt(B^2-4AC)/2A
-		double A = (eyeRay.magnitude())*(eyeRay.magnitude());
+		double A = (eyeRay.abs())*(eyeRay.abs());
 		double B = 2*(eyeRay.dot(co));
-		double C = ((co.magnitude()*co.magnitude())-(radius*radius));
+		double C = ((co.abs()*co.abs())-(radius*radius));
 		double D = B*B-4*A*C;
 
 		// ignore complex solutions
@@ -53,7 +54,7 @@ public:
 		return t;
 	}
 
-	virtual Point Normal(Point viewPoint, Point intersectionPoint) {
+	virtual Vector3f Normal(Vector3f viewPoint, Vector3f intersectionPoint) {
 		return intersectionPoint-center;
 	}
 };

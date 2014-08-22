@@ -1,14 +1,15 @@
 #ifndef PRIMITIVE_H
 #define	PRIMITIVE_H
 
+#include <vecmath.h>
+
 #include "Material.h"
-#include "Point.h"
 
 class Primitive {
 	public:
 		Material m;
-		virtual double Intersection(Point viewPoint, Point eyeRay) = 0;
-		virtual Point Normal(Point viewPoint, Point intersectionPoint) = 0;
+		virtual double Intersection(Vector3f viewPoint, Vector3f eyeRay) = 0;
+		virtual Vector3f Normal(Vector3f viewPoint, Vector3f intersectionPoint) = 0;
 };
 
 #endif	/* PRIMITIVE_H */
