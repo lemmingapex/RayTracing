@@ -8,7 +8,7 @@
 class Primitive {
 	public:
 		Material m;
-		virtual double Intersection(Vector3f viewPoint, Vector3f eyeRay) = 0;
+		virtual double Intersection(Vector3f viewPoint, Vector3f l) = 0;
 		virtual Vector3f Normal(Vector3f viewPoint, Vector3f intersectionPoint) = 0;
 };
 

@@ -17,9 +17,9 @@ public:
 		m = M;
 	}
 
-	virtual double Intersection(Vector3f viewPoint, Vector3f eyeRay) {
+	virtual double Intersection(Vector3f viewPoint, Vector3f l) {
 		double t = -1.0;
-		Vector3f co = viewPoint-center;
+		Vector3f diff = viewPoint-center;
 
 		// ray sphere intersection
 		// sphere:
@@ -30,10 +30,11 @@ public:
 
 		// substitute and expand
 
-		// t=-B+/-sqrt(B^2-4AC)/2A
-		double A = (eyeRay.abs())*(eyeRay.abs());
-		double B = 2*(eyeRay.dot(co));
-		double C = ((co.abs()*co.abs())-(radius*radius));
+		// A*t^2 + B*t + C = 0
+		// t = -B+/-sqrt(B^2-4AC)/2A
+		double A = (l.abs())*(l.abs());
+		double B = 2*(l.dot(diff));
+		double C = ((diff.abs()*diff.abs())-(radius*radius));
 		double D = B*B-4*A*C;
 
 		// ignore complex solutions
@@ -55,6 +56,12 @@ public:
 	}
 
 	virtual Vector3f Normal(Vector3f viewPoint, Vector3f intersectionPoint) {
-		return intersectionPoint-center;
+		Vector3f normal = intersectionPoint-center;
+
+		if((intersectionPoint-center).abs() > (viewPoint-center).abs()) {
+			normal = -1.0*normal;
+		}
+
+		return normal;
 	}
 };

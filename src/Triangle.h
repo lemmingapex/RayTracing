@@ -17,7 +17,7 @@ public:
 		m=M;
 	}
 
-	virtual double Intersection(Vector3f viewPoint, Vector3f eyeRay) {
+	virtual double Intersection(Vector3f viewPoint, Vector3f l) {
 		double t = -1;
 		// normal
 		Vector3f n = (a2-a1).cross(a3-a1);
@@ -32,14 +32,13 @@ public:
 		// substitute:
 		// (t*l + l0 - p0) dot n = 0
 
-		t=-1*(((viewPoint-a1).dot(n))/(eyeRay.dot(n)));
-		if(t<0)
-		{
+		t=-1.0*(((viewPoint-a1).dot(n))/(l.dot(n)));
+		if(t < 0) {
 			return -1;
 		}
 		
 		// find point on plane
-		Vector3f p = viewPoint + (eyeRay*t);
+		Vector3f p = viewPoint + (l*t);
 
 		// check if point is inside triangle
 		Vector3f v1 = (a1-p).cross(a2-p);

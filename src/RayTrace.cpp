@@ -16,8 +16,9 @@
 #include "Image.h"
 #include "Material.h"
 #include "Primitive.h"
-#include "Sphere.h"
 #include "Triangle.h"
+#include "Sphere.h"
+#include "Ellipsoid.h"
 
 using namespace std;
 
@@ -168,6 +169,7 @@ bool read_input_file(string Filename) {
 			ifs >> primitive_type;
 			primitive_type = toupper(primitive_type);
 			float center[3];
+			float axisLengths[3];
 			double radius;
 			float a1[3], a2[3], a3[3];
 
@@ -180,6 +182,11 @@ bool read_input_file(string Filename) {
 					ifs >> a1[0] >> a1[1] >> a1[2];
 					ifs >> a2[0] >> a2[1] >> a2[2];
 					ifs >> a3[0] >> a3[1] >> a3[2];
+					break;
+				case 'E':
+					ifs >> center[0] >> center[1] >> center[2];
+					ifs >> radius;
+					ifs >> axisLengths[0] >> axisLengths[1] >> axisLengths[2];
 					break;
 				default:
 					cerr << "Unrecognized primitive: " << toupper(primitive_type) << endl;
@@ -198,6 +205,9 @@ bool read_input_file(string Filename) {
 					break;
 				case 'T':
 					Primitives.push_back(new Triangle(a1, a2, a3, temp_material));
+					break;
+				case 'E':
+					Primitives.push_back(new Ellipsoid(center, radius, axisLengths, temp_material));
 					break;
 				default:
 					continue;
