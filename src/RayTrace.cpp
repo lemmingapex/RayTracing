@@ -185,7 +185,6 @@ bool read_input_file(string Filename) {
 					break;
 				case 'E':
 					ifs >> center[0] >> center[1] >> center[2];
-					ifs >> radius;
 					ifs >> axisLengths[0] >> axisLengths[1] >> axisLengths[2];
 					break;
 				default:
@@ -207,7 +206,7 @@ bool read_input_file(string Filename) {
 					Primitives.push_back(new Triangle(a1, a2, a3, temp_material));
 					break;
 				case 'E':
-					Primitives.push_back(new Ellipsoid(center, radius, axisLengths, temp_material));
+					Primitives.push_back(new Ellipsoid(center, axisLengths, temp_material));
 					break;
 				default:
 					continue;

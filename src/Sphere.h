@@ -1,25 +1,33 @@
+#ifndef SPHERE_H
+#define	SPHERE_H
+
 #include <vecmath.h>
 
 #include "Material.h"
-#include "Primitive.h"
+#include "Ellipsoid.h"
 
-class Sphere: public Primitive {
-public:
-	Vector3f center;
+class Sphere: public Ellipsoid {
+protected:
 	double radius;
 
+public:
 	Sphere()
 	{ }
 
 	Sphere(float Center[3], double Radius, Material M) {
 		center = Vector3f(Center);
-		radius = Radius;
 		m = M;
+		A = Matrix3f(1.0f/(Radius*Radius), 0.0f, 0.0f, 0.0f, 1.0f/(Radius*Radius), 0.0f, 0.0f, 0.0f, 1.0f/(Radius*Radius));
+		radius = Radius;
 	}
 
-	virtual double Intersection(Vector3f viewPoint, Vector3f l) {
+	/**
+	* Although the ellipsoid intersection algorithm could easily be used, the degeneracies that 
+	* occur in the sphere case save a considerable ammount of computation time.
+	*/
+ 	virtual double Intersection(Vector3f viewPoint, Vector3f l) {
 		double t = -1.0;
-		Vector3f diff = viewPoint-center;
+		Vector3f diff = viewPoint - center;
 
 		// ray sphere intersection
 		// sphere:
@@ -30,18 +38,18 @@ public:
 
 		// substitute and expand
 
-		// A*t^2 + B*t + C = 0
-		// t = -B+/-sqrt(B^2-4AC)/2A
-		double A = (l.abs())*(l.abs());
-		double B = 2*(l.dot(diff));
-		double C = ((diff.abs()*diff.abs())-(radius*radius));
-		double D = B*B-4*A*C;
+		// a*t^2 + b*t + c = 0
+		// t = -b+/-sqrt(b^2-4ac)/2a
+		double a = (l.abs())*(l.abs());
+		double b = 2*(l.dot(diff));
+		double c = ((diff.abs()*diff.abs())-(radius*radius));
+		double d = b*b-4*a*c;
 
 		// ignore complex solutions
-		if(D>0) {
+		if(d>0) {
 			// get both roots
-			double t1=(-B-sqrt(D))/(2*A);
-			double t2=(-B+sqrt(D))/(2*A);
+			double t1=(-b-sqrt(d))/(2*a);
+			double t2=(-b+sqrt(d))/(2*a);
 
 			// find closest, positive, interestion
 			if(t2<t1 && t2>0) {
@@ -54,14 +62,6 @@ public:
 		}
 		return t;
 	}
-
-	virtual Vector3f Normal(Vector3f viewPoint, Vector3f intersectionPoint) {
-		Vector3f normal = intersectionPoint-center;
-
-		if((intersectionPoint-center).abs() > (viewPoint-center).abs()) {
-			normal = -1.0*normal;
-		}
-
-		return normal;
-	}
 };
+
+#endif	/* SPHERE_H */

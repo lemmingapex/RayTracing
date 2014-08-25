@@ -1,12 +1,16 @@
+#ifndef TRIANGLE_H
+#define	TRIANGLE_H
+
 #include <vecmath.h>
 
 #include "Material.h"
 #include "Primitive.h"
 
 class Triangle: public Primitive {
-public:
+protected:
 	Vector3f a1, a2, a3;
 
+public:
 	Triangle()
 	{ }
 
@@ -32,7 +36,7 @@ public:
 		// substitute:
 		// (t*l + l0 - p0) dot n = 0
 
-		t=-1.0*(((viewPoint-a1).dot(n))/(l.dot(n)));
+		t = -1.0*(((viewPoint-a1).dot(n))/(l.dot(n)));
 		if(t < 0) {
 			return -1;
 		}
@@ -62,3 +66,5 @@ public:
 		return normal;
 	}
 };
+
+#endif	/* TRIANGLE_H */
