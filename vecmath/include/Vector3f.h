@@ -11,7 +11,7 @@ public:
 	static const Vector3f RIGHT;
 	static const Vector3f FORWARD;
 
-	Vector3f( float f = 0.f );
+	explicit Vector3f( float f = 0.f );
 	Vector3f( float x, float y, float z );
 	Vector3f( float M[3] );
 

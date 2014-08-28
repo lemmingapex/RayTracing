@@ -170,6 +170,8 @@ bool read_input_file(string Filename) {
 			primitive_type = toupper(primitive_type);
 			float center[3];
 			float axisLengths[3];
+			float theta;
+			float phi;
 			double radius;
 			float a1[3], a2[3], a3[3];
 
@@ -186,6 +188,7 @@ bool read_input_file(string Filename) {
 				case 'E':
 					ifs >> center[0] >> center[1] >> center[2];
 					ifs >> axisLengths[0] >> axisLengths[1] >> axisLengths[2];
+					ifs >> theta >> phi;
 					break;
 				default:
 					cerr << "Unrecognized primitive: " << toupper(primitive_type) << endl;
@@ -206,7 +209,7 @@ bool read_input_file(string Filename) {
 					Primitives.push_back(new Triangle(a1, a2, a3, temp_material));
 					break;
 				case 'E':
-					Primitives.push_back(new Ellipsoid(center, axisLengths, temp_material));
+					Primitives.push_back(new Ellipsoid(center, axisLengths, theta, phi, temp_material));
 					break;
 				default:
 					continue;
