@@ -1,30 +1,25 @@
-RayTracing
-==========
+# RayTracing
 
 Simple Ray Tracer
 
 ![alt text](sample_output.png "Sample output")
 
-Compile It
-----------
+## Compile It
 
-make
+`make`
 
-Run It
-------
+## Run It
 
-./RayTrace ./input/simple/input12.txt
+`./RayTrace ./input/simple/input12.txt`
 
 
-About
------
+## About
 
-A Phong reflection model is used for local illumination.  Shadows are present, although simple.  There is support for 3 primitive geometry types: triangles, spheres and ellpsoids.  If you would like to run the program on an entire directory:
+A Phong reflection model is used for local illumination.  Shadows are present, although simple.  There is support for three primitive geometry types: triangles, spheres and ellpsoids.  If you would like to run the program on an entire directory:
 
-ls ./input/simple/*.txt | xargs -I {} ./RayTrace {}
+`ls ./input/simple/*.txt | xargs -I {} ./RayTrace {}`
 
-Future Work
------------
+## Future Work
 
 Support for other primitives:  Cone, Cylinder, Torus, etc.
 Experiment with the bidirectional reflectance distribution function.
